@@ -9,7 +9,8 @@ Customer churn represents the phenomenon where customers discontinue their subsc
 ## Dataset
 
 - **Source**: [Telco Customer Churn Dataset](https://www.kaggle.com/datasets/mosapabdelghany/telcom-customerchurn-dataset)
-- **Size**: 7,043 customers, 21 features
+- **Size**: 7,043 customers, 21 columns (19 features + customerID + target)
+- **Original Features**: 19
 - **Target Variable**: Churn (Yes/No)
 
 ### Features
@@ -81,7 +82,7 @@ Customer-Churn-Prediction-ML-project/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/Customer-Churn-Prediction-ML-project.git
+git clone https://github.com/Thurga1125/Customer-Churn-Prediction-ML-project
 cd Customer-Churn-Prediction-ML-project
 ```
 
