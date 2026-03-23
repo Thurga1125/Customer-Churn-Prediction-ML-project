@@ -6,7 +6,7 @@ from pathlib import Path
 
 st.set_page_config(
     page_title="Customer Churn Prediction",
-    page_icon="📡",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -32,7 +32,8 @@ html, body, [class*="css"] {
     background: #fff;
     border-bottom: 1px solid #e8ecf0;
     gap: 0;
-    padding: 0 60px;
+    padding: 0;
+    justify-content: center;
     position: sticky;
     top: 0;
     z-index: 200;
@@ -417,51 +418,6 @@ with tab1:
         <span class="tag">Contract</span><span class="tag">Paperless Billing</span>
         <span class="tag">Payment Method</span><span class="tag">Monthly Charges</span>
         <span class="tag">Total Charges</span>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="section">
-      <div class="sec-title">Model Performance</div>
-      <div class="sec-sub">Head-to-head comparison on the test set · 1,409 samples</div>
-      <div class="model-grid">
-
-        <div class="model-card winner">
-          <div class="winner-badge">Winner</div>
-          <div class="model-name">Logistic Regression</div>
-          <div class="model-metrics">
-            <div><div class="mm-label">Accuracy</div><div class="mm-value blue">80.55%</div></div>
-            <div><div class="mm-label">ROC-AUC</div><div class="mm-value blue">0.842</div></div>
-            <div><div class="mm-label">F1 Score</div><div class="mm-value">60.40%</div></div>
-            <div><div class="mm-label">Recall</div><div class="mm-value">55.88%</div></div>
-          </div>
-          <div class="model-divider"></div>
-          <ul class="model-points">
-            <li><span class="dot-blue"></span>Higher accuracy and ROC-AUC on this dataset</li>
-            <li><span class="dot-blue"></span>Interpretable coefficients for business use</li>
-            <li><span class="dot-blue"></span>Faster training — approx. 0.3 s vs 12 s</li>
-            <li><span class="dot-blue"></span>Better generalisation with moderate class imbalance</li>
-          </ul>
-        </div>
-
-        <div class="model-card">
-          <div class="model-name">Random Forest</div>
-          <div class="model-metrics">
-            <div><div class="mm-label">Accuracy</div><div class="mm-value">78.28%</div></div>
-            <div><div class="mm-label">ROC-AUC</div><div class="mm-value">0.826</div></div>
-            <div><div class="mm-label">F1 Score</div><div class="mm-value">54.60%</div></div>
-            <div><div class="mm-label">Recall</div><div class="mm-value">49.20%</div></div>
-          </div>
-          <div class="model-divider"></div>
-          <ul class="model-points">
-            <li><span class="dot-gray"></span>Handles non-linear feature interactions</li>
-            <li><span class="dot-gray"></span>Built-in feature importance rankings</li>
-            <li><span class="dot-gray"></span>Robust to outliers — no scaling required</li>
-            <li><span class="dot-gray"></span>100 decision trees · n_estimators = 100</li>
-          </ul>
-        </div>
-
       </div>
     </div>
     """, unsafe_allow_html=True)
