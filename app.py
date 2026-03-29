@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import altair as alt
 import joblib
 from pathlib import Path
 
@@ -22,73 +23,102 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
 }
-.stApp { background: #f0f4f8; }
+.stApp {
+    background:
+        radial-gradient(circle at top, rgba(96,165,250,.16) 0%, rgba(96,165,250,0) 30%),
+        linear-gradient(180deg, #ffffff 0%, #f5f9ff 100%);
+}
 .block-container { padding: 0 !important; max-width: 100% !important; }
 #MainMenu, footer, header { visibility: hidden; }
 .stDeployButton { display: none; }
 
+:root {
+    --bg-main: #ffffff;
+    --bg-panel: #f4f8ff;
+    --bg-card: #f8fbff;
+    --bg-soft: #eef5ff;
+    --line-soft: rgba(96, 165, 250, 0.16);
+    --text-main: #0f172a;
+    --text-soft: #64748b;
+    --text-dim: #7f8ca8;
+    --accent: #4f8ff7;
+    --accent-soft: #7cb7ff;
+    --depth-shadow-soft: 0 12px 28px rgba(96, 165, 250, 0.10), 0 4px 12px rgba(15, 23, 42, 0.04);
+    --depth-shadow-mid: 0 18px 40px rgba(96, 165, 250, 0.12), 0 6px 16px rgba(15, 23, 42, 0.05);
+    --depth-highlight: inset 0 1px 0 rgba(255,255,255,0.92), inset 0 -1px 0 rgba(148,163,184,0.06);
+}
+
 /* ── Tabs ──────────────────────────────────────────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
-    background: #fff;
-    border-bottom: 1px solid #e8ecf0;
-    gap: 0;
-    padding: 0;
+    width: fit-content;
+    margin: 26px auto 22px;
+    background: linear-gradient(180deg, #fbfdff 0%, #f1f7ff 100%);
+    border: 1px solid rgba(96, 165, 250, 0.14);
+    border-radius: 28px;
+    gap: 12px;
+    padding: 12px;
     justify-content: center;
     position: sticky;
-    top: 0;
+    top: 14px;
     z-index: 200;
-    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    box-shadow: var(--depth-shadow-mid), var(--depth-highlight);
 }
 .stTabs [data-baseweb="tab"] {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #64748b;
-    padding: 16px 24px;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent) !important;
+    padding: 14px 28px;
+    border: 1px solid transparent;
+    border-radius: 18px;
+    margin-bottom: 0;
     letter-spacing: .01em;
+    background: rgba(96,165,250,.06);
 }
 .stTabs [aria-selected="true"] {
-    color: #2563eb !important;
-    border-bottom-color: #2563eb !important;
-    font-weight: 600;
+    color: #ffffff !important;
+    border-bottom-color: transparent !important;
+    background: linear-gradient(180deg, #7cb7ff 0%, #4f8ff7 100%) !important;
+    box-shadow: 0 10px 24px rgba(96,165,250,.24), inset 0 1px 0 rgba(255,255,255,.22);
 }
 .stTabs [data-baseweb="tab-panel"] { padding: 0; }
 
 /* ── Hero ──────────────────────────────────────────────────────────────── */
 .hero {
-    background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 100%);
+    background: linear-gradient(160deg, #fbfdff 0%, #f1f7ff 100%);
     text-align: center;
     padding: 80px 60px 64px;
-    border-bottom: 1px solid #e8ecf0;
+    border: 1px solid var(--line-soft);
+    border-radius: 26px;
+    margin: 8px 60px 28px;
+    box-shadow: var(--depth-shadow-mid), var(--depth-highlight);
 }
 .hero-badge {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    background: #fff;
-    border: 1px solid #dde3ee;
+    background: rgba(96,165,250,.10);
+    border: 1px solid rgba(96,165,250,.14);
     border-radius: 999px;
     padding: 7px 18px;
     font-size: 12.5px;
     font-weight: 600;
-    color: #3b82f6;
+    color: var(--accent-soft);
     letter-spacing: .03em;
     margin-bottom: 28px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    box-shadow: var(--depth-shadow-soft), var(--depth-highlight);
 }
 .hero-title {
     font-size: 58px;
     font-weight: 900;
     line-height: 1.08;
-    color: #0f172a;
+    color: var(--text-main);
     margin-bottom: 4px;
     letter-spacing: -.02em;
 }
 .hero-accent { color: #2563eb; }
 .hero-sub {
     font-size: 17px;
-    color: #64748b;
+    color: var(--text-soft);
     max-width: 560px;
     margin: 16px auto 40px;
     line-height: 1.65;
@@ -97,64 +127,67 @@ html, body, [class*="css"] {
 .hero-stats {
     display: inline-flex;
     align-items: center;
-    background: #fff;
-    border: 1px solid #dde3ee;
+    background: linear-gradient(180deg, rgba(255,255,255,.95) 0%, rgba(245,249,255,.98) 100%);
+    border: 1px solid var(--line-soft);
     border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    box-shadow: var(--depth-shadow-mid), var(--depth-highlight);
+    transform: translateY(-1px);
 }
 .hero-stat-item {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 16px 28px;
-    border-right: 1px solid #e8ecf0;
+    border-right: 1px solid var(--line-soft);
+    background: transparent;
 }
 .hero-stat-item:last-child { border-right: none; }
 .hero-stat-icon {
     width: 34px; height: 34px; border-radius: 9px;
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.icon-blue   { background: #eff6ff; }
-.icon-green  { background: #f0fdf4; }
-.icon-purple { background: #faf5ff; }
-.icon-amber  { background: #fffbeb; }
-.hero-stat-val { font-size: 16px; font-weight: 700; color: #0f172a; line-height: 1; }
-.hero-stat-lbl { font-size: 11.5px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
+.icon-blue   { background: rgba(59,130,246,.14); }
+.icon-green  { background: rgba(34,197,94,.14); }
+.icon-purple { background: rgba(168,85,247,.14); }
+.icon-amber  { background: rgba(245,158,11,.14); }
+.hero-stat-val { font-size: 16px; font-weight: 700; color: var(--text-main); line-height: 1; }
+.hero-stat-lbl { font-size: 11.5px; color: var(--text-soft); font-weight: 500; margin-top: 2px; }
 
 /* ── Sections ──────────────────────────────────────────────────────────── */
 .section     { padding: 60px; }
-.section-alt { background: #fff; }
-.sec-title   { font-size: 30px; font-weight: 800; color: #0f172a; text-align: center; letter-spacing: -.02em; margin-bottom: 6px; }
-.sec-sub     { font-size: 14.5px; color: #64748b; text-align: center; margin-bottom: 40px; }
+.section-alt { background: transparent; }
+.sec-title   { font-size: 30px; font-weight: 800; color: var(--accent); text-align: left; letter-spacing: -.02em; margin-bottom: 6px; }
+.sec-sub     { font-size: 14.5px; color: var(--text-soft); text-align: left; margin-bottom: 40px; }
 .inner       { padding: 0 60px; }
 
 /* ── Metric cards ──────────────────────────────────────────────────────── */
 .metric-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
 .metric-card {
-    background: #fff; border-radius: 16px; padding: 28px 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06); text-align: center; border: 1px solid #f1f5f9;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border-radius: 20px; padding: 28px 24px;
+    box-shadow: var(--depth-shadow-soft), var(--depth-highlight); text-align: center; border: 1px solid var(--line-soft);
+    transform: translateY(-1px);
 }
-.metric-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
-.metric-value { font-size: 38px; font-weight: 800; color: #0f172a; line-height: 1; letter-spacing: -.02em; }
-.metric-note  { font-size: 12px; color: #94a3b8; margin-top: 7px; }
+.metric-label { font-size: 11px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+.metric-value { font-size: 38px; font-weight: 800; color: var(--accent); line-height: 1; letter-spacing: -.02em; }
+.metric-note  { font-size: 12px; color: var(--text-soft); margin-top: 7px; }
 
 /* ── Tags ──────────────────────────────────────────────────────────────── */
 .tag-cloud { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 28px; }
 .tag {
-    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 999px;
-    padding: 5px 15px; font-size: 12.5px; font-weight: 500; color: #475569;
+    background: rgba(96,165,250,.08); border: 1px solid rgba(96,165,250,.16); border-radius: 999px;
+    padding: 7px 18px; font-size: 12.5px; font-weight: 500; color: var(--accent);
 }
 
 /* ── Model cards ───────────────────────────────────────────────────────── */
 .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .model-card {
-    background: #fff; border-radius: 18px; padding: 36px;
-    box-shadow: 0 1px 4px rgba(0,0,0,.06); border: 1.5px solid #f1f5f9; position: relative;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border-radius: 18px; padding: 36px;
+    box-shadow: var(--depth-shadow-soft), var(--depth-highlight); border: 1.5px solid var(--line-soft); position: relative;
 }
 .model-card.winner {
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37,99,235,.08), 0 1px 4px rgba(0,0,0,.06);
+    box-shadow: 0 0 0 3px rgba(37,99,235,.08), var(--depth-shadow-soft), var(--depth-highlight);
 }
 .winner-badge {
     position: absolute; top: -13px; left: 28px;
@@ -162,96 +195,99 @@ html, body, [class*="css"] {
     font-size: 11px; font-weight: 700; padding: 4px 14px;
     border-radius: 999px; letter-spacing: .05em; text-transform: uppercase;
 }
-.model-name   { font-size: 20px; font-weight: 700; color: #0f172a; margin-bottom: 24px; }
+.model-name   { font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 24px; }
 .model-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-.mm-label { font-size: 10.5px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
-.mm-value { font-size: 30px; font-weight: 800; color: #0f172a; letter-spacing: -.01em; }
+.mm-label { font-size: 10.5px; font-weight: 700; color: var(--text-soft); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+.mm-value { font-size: 30px; font-weight: 800; color: var(--text-main); letter-spacing: -.01em; }
 .mm-value.blue { color: #2563eb; }
-.model-divider { height: 1px; background: #f1f5f9; margin-bottom: 18px; }
+.model-divider { height: 1px; background: rgba(255,255,255,.06); margin-bottom: 18px; }
 .model-points  { list-style: none; }
-.model-points li { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: #64748b; margin-bottom: 9px; }
+.model-points li { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--text-soft); margin-bottom: 9px; }
 .dot-blue { width: 6px; height: 6px; border-radius: 50%; background: #2563eb; flex-shrink: 0; }
 .dot-gray { width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; flex-shrink: 0; }
 
 /* ── Driver cards ──────────────────────────────────────────────────────── */
 .driver-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; }
 .driver-card {
-    background: #fff; border-radius: 16px; padding: 28px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #f1f5f9;
+    background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%); border-radius: 20px; padding: 28px;
+    box-shadow: var(--depth-shadow-soft), var(--depth-highlight); border: 1px solid var(--line-soft);
+    transform: translateY(-1px);
 }
 .driver-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
-.driver-icon-wrap { width: 42px; height: 42px; border-radius: 12px; background: #eff6ff; display: flex; align-items: center; justify-content: center; }
+.driver-icon-wrap { width: 54px; height: 54px; border-radius: 999px; background: linear-gradient(180deg, rgba(59,130,246,.26) 0%, rgba(59,130,246,.16) 100%); display: flex; align-items: center; justify-content: center; }
 .driver-pct   { font-size: 26px; font-weight: 800; color: #2563eb; letter-spacing: -.01em; }
-.driver-title { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-.driver-desc  { font-size: 13.5px; color: #64748b; line-height: 1.6; }
+.driver-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+.driver-desc  { font-size: 13.5px; color: var(--text-soft); line-height: 1.6; }
 
 /* ── Insights ──────────────────────────────────────────────────────────── */
 .insight-card { border-radius: 14px; padding: 22px 24px; }
-.insight-blue  { background: #eff6ff; border: 1px solid #bfdbfe; }
-.insight-amber { background: #fffbeb; border: 1px solid #fde68a; }
-.insight-red   { background: #fef2f2; border: 1px solid #fecaca; }
+.insight-blue  { background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%); border: 1px solid var(--line-soft); }
+.insight-amber { background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border: 1px solid var(--line-soft); }
+.insight-red   { background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border: 1px solid var(--line-soft); }
 .insight-head  { font-size: 13.5px; font-weight: 700; margin-bottom: 7px; }
 .insight-blue  .insight-head { color: #1d4ed8; }
 .insight-amber .insight-head { color: #92400e; }
 .insight-red   .insight-head { color: #991b1b; }
 .insight-body  { font-size: 13px; line-height: 1.6; }
-.insight-blue  .insight-body { color: #3b82f6; }
-.insight-amber .insight-body { color: #b45309; }
-.insight-red   .insight-body { color: #b91c1c; }
+.insight-blue  .insight-body { color: var(--text-soft); }
+.insight-amber .insight-body { color: var(--text-soft); }
+.insight-red   .insight-body { color: var(--text-soft); }
 
 /* ── Metrics table ─────────────────────────────────────────────────────── */
 .mtable {
     width: 100%; border-collapse: collapse;
-    background: #fff; border-radius: 16px; overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #f1f5f9;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border-radius: 16px; overflow: hidden;
+    box-shadow: var(--depth-shadow-soft), var(--depth-highlight); border: 1px solid var(--line-soft);
 }
 .mtable th {
-    background: #f8fafc; font-size: 11px; font-weight: 700; color: #94a3b8;
-    text-transform: uppercase; letter-spacing: .07em; padding: 14px 22px;
-    text-align: left; border-bottom: 1px solid #e8ecf0;
+    background: rgba(96,165,250,.05); font-size: 11px; font-weight: 700; color: var(--text-soft);
+    text-transform: uppercase; letter-spacing: .07em; padding: 11px 16px;
+    text-align: left; border-bottom: 1px solid rgba(255,255,255,.06);
 }
-.mtable td { padding: 15px 22px; font-size: 14.5px; color: #334155; border-bottom: 1px solid #f8fafc; font-weight: 500; }
+.mtable td { padding: 11px 16px; font-size: 13px; color: var(--text-main); border-bottom: 1px solid rgba(59,130,246,.05); font-weight: 500; }
 .mtable tr:last-child td { border-bottom: none; }
 .mtable .best { color: #2563eb; font-weight: 700; }
-.mtable .dim  { color: #94a3b8; }
+.mtable .dim  { color: var(--text-soft); }
 
 /* ── Image cards ───────────────────────────────────────────────────────── */
-.img-card { background: #fff; border-radius: 16px; padding: 22px; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #f1f5f9; }
-.img-title { font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 14px; letter-spacing: .01em; }
+.img-card { background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border-radius: 16px; padding: 16px; box-shadow: var(--depth-shadow-soft), var(--depth-highlight); border: 1px solid var(--line-soft); transform: translateY(-1px); }
+.img-title { font-size: 12px; font-weight: 700; color: var(--text-main); margin-bottom: 10px; letter-spacing: .01em; }
+.analysis-narrow { max-width: 980px; margin: 0 auto; }
 
 /* ── Why cards ─────────────────────────────────────────────────────────── */
 .why-card {
-    background: #fff; border-radius: 16px; padding: 28px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #f1f5f9; margin-bottom: 16px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border-radius: 16px; padding: 28px;
+    box-shadow: var(--depth-shadow-soft), var(--depth-highlight); border: 1px solid var(--line-soft); margin-bottom: 16px;
 }
-.why-title { font-size: 14.5px; font-weight: 700; color: #0f172a; margin-bottom: 7px; }
-.why-body  { font-size: 13.5px; color: #64748b; line-height: 1.6; }
+.why-title { font-size: 14.5px; font-weight: 700; color: var(--text-main); margin-bottom: 7px; }
+.why-body  { font-size: 13.5px; color: var(--text-soft); line-height: 1.6; }
 
 /* ── Prediction results ────────────────────────────────────────────────── */
-.result-wrap  { border-radius: 16px; padding: 28px 30px; }
-.result-churn { background: #fef2f2; border: 1px solid #fca5a5; }
-.result-stay  { background: #f0fdf4; border: 1px solid #86efac; }
+.result-wrap  { border-radius: 16px; padding: 28px 30px; box-shadow: var(--depth-shadow-soft), var(--depth-highlight); transform: translateY(-1px); }
+.result-churn { background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%); border: 1px solid rgba(248,113,113,.18); }
+.result-stay  { background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%); border: 1px solid rgba(74,222,128,.16); }
 .result-label { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
 .result-label.churn { color: #dc2626; }
-.result-label.stay  { color: #16a34a; }
-.result-prob  { font-size: 13px; color: #64748b; }
-.result-prob b { color: #0f172a; }
+.result-label.stay  { color: #4ade80; }
+.result-prob  { font-size: 13px; color: var(--text-soft); }
+.result-prob b { color: var(--text-main); }
 .model-tag {
-    font-size: 11px; font-weight: 700; color: #94a3b8;
+    font-size: 11px; font-weight: 700; color: var(--text-soft);
     text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px;
 }
 
 /* ── Risk bar ──────────────────────────────────────────────────────────── */
 .risk-card {
-    background: #fff; border-radius: 16px; padding: 28px 32px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #f1f5f9; margin-top: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border-radius: 16px; padding: 28px 32px;
+    box-shadow: var(--depth-shadow-soft), var(--depth-highlight); border: 1px solid var(--line-soft); margin-top: 20px;
+    transform: translateY(-1px);
 }
 .risk-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
-.risk-head-title { font-size: 14px; font-weight: 700; color: #0f172a; }
+.risk-head-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .risk-score  { font-size: 28px; font-weight: 800; letter-spacing: -.01em; }
-.risk-track  { height: 10px; background: #f1f5f9; border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
+.risk-track  { height: 10px; background: rgba(96,165,250,.10); border-radius: 999px; overflow: hidden; margin-bottom: 8px; }
 .risk-fill   { height: 100%; border-radius: 999px; }
-.risk-labels { display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; font-weight: 500; }
+.risk-labels { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-soft); font-weight: 500; }
 .risk-verdict { margin-top: 14px; font-size: 13.5px; font-weight: 600; }
 
 /* ── Form labels ───────────────────────────────────────────────────────── */
@@ -260,40 +296,133 @@ div[data-testid="stSlider"] > label,
 div[data-testid="stNumberInput"] > label {
     font-size: 12px !important;
     font-weight: 700 !important;
-    color: #475569 !important;
+    color: var(--text-soft) !important;
     text-transform: uppercase !important;
     letter-spacing: .05em !important;
 }
 div[data-testid="stSelectbox"] > div > div {
     border-radius: 10px !important;
-    border: 1px solid #e2e8f0 !important;
-    font-size: 14px !important;
-    background: #fff !important;
+    border: 1px solid rgba(96,132,189,.24) !important;
+    font-size: 13px !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+    min-height: 40px !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 6px 16px rgba(96,165,250,.08) !important;
 }
 div[data-testid="stNumberInput"] > div {
     border-radius: 10px !important;
-    border: 1px solid #e2e8f0 !important;
-    background: #fff !important;
+    border: 1px solid rgba(96,132,189,.24) !important;
+    background: linear-gradient(180deg, #ffffff 0%, #f9fbff 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 6px 16px rgba(96,165,250,.08) !important;
+}
+div[data-testid="stNumberInput"] input,
+div[data-testid="stSelectbox"] input {
+    font-size: 13px !important;
+    color: var(--text-main) !important;
+}
+div[data-testid="stSelectbox"] svg,
+div[data-testid="stNumberInput"] svg {
+    color: #64748b !important;
+}
+div[data-testid="stSlider"] {
+    padding-top: 2px !important;
 }
 .form-sep {
-    font-size: 11px; font-weight: 700; color: #94a3b8;
-    text-transform: uppercase; letter-spacing: .1em;
-    padding: 24px 0 10px; border-bottom: 1px solid #f1f5f9; margin-bottom: 8px;
+    font-size: 13px; font-weight: 800; color: var(--accent);
+    text-transform: uppercase; letter-spacing: .12em;
+    padding: 20px 0 8px; border-bottom: 1px solid rgba(96,165,250,.10); margin-bottom: 8px;
 }
 
 /* ── Submit button ─────────────────────────────────────────────────────── */
-div[data-testid="stFormSubmitButton"] button {
-    background: #2563eb !important; color: #fff !important;
-    border-radius: 12px !important; font-size: 14.5px !important;
-    font-weight: 700 !important; padding: 14px !important; border: none !important;
-    width: 100% !important; letter-spacing: .02em !important;
-    box-shadow: 0 4px 14px rgba(37,99,235,.3) !important;
+div[data-testid="stFormSubmitButton"] {
+    margin-top: 10px !important;
 }
-div[data-testid="stFormSubmitButton"] button:hover { background: #1d4ed8 !important; }
+div[data-testid="stFormSubmitButton"] button {
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 58%, #1d4ed8 100%) !important;
+    color: #fff !important;
+    border-radius: 14px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    padding: 0 20px !important;
+    min-height: 50px !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    width: 100% !important; letter-spacing: .02em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 18px 32px rgba(37,99,235,.28), inset 0 1px 0 rgba(255,255,255,.30), inset 0 -2px 0 rgba(29,78,216,.35) !important;
+    transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease !important;
+}
+div[data-testid="stFormSubmitButton"] button:hover {
+    background: linear-gradient(180deg, #4f8ff7 0%, #2563eb 60%, #1d4ed8 100%) !important;
+    box-shadow: 0 22px 36px rgba(37,99,235,.32), inset 0 1px 0 rgba(255,255,255,.34), inset 0 -2px 0 rgba(29,78,216,.4) !important;
+    transform: translateY(-2px) !important;
+}
 
 .gap16 { height: 16px; }
 .gap24 { height: 24px; }
 .gap48 { height: 48px; }
+
+/* ── Predict layout ────────────────────────────────────────────────────── */
+.predict-shell { padding: 36px 60px 60px; }
+.predict-panel {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    border: 1px solid var(--line-soft);
+    border-radius: 22px;
+    box-shadow: var(--depth-shadow-mid), var(--depth-highlight);
+    padding: 28px;
+    transform: translateY(-1px);
+}
+.predict-panel-head {
+    margin-bottom: 6px;
+}
+.predict-panel-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -.02em;
+    margin-bottom: 6px;
+}
+.predict-panel-sub {
+    font-size: 14px;
+    color: var(--text-soft);
+    line-height: 1.6;
+}
+.result-placeholder {
+    border: 1px dashed rgba(96,132,189,.24);
+    border-radius: 16px;
+    padding: 26px;
+    background: rgba(96,165,250,.05);
+    color: var(--text-soft);
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.92);
+}
+
+@media (max-width: 1100px) {
+    .metric-grid { grid-template-columns: repeat(2,1fr); }
+    .driver-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    .hero { padding: 56px 24px 48px; margin: 8px 24px 28px; }
+    .hero-title { font-size: 42px; }
+    .section { padding: 40px 24px; }
+    .inner { padding: 0 24px; }
+    .predict-shell { padding: 24px 24px 48px; }
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        width: 100%;
+    }
+    .hero-stat-item {
+        border-right: none;
+        border-bottom: 1px solid var(--line-soft);
+    }
+    .hero-stat-item:nth-last-child(-n+2) { border-bottom: none; }
+    .model-grid,
+    .metric-grid { grid-template-columns: 1fr; }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -338,46 +467,42 @@ ICN_CLK    = svg('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 1
 ICN_WIFI   = svg('<path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/>', "#2563eb", 20, 20)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-# HERO
-# ══════════════════════════════════════════════════════════════════════════════
-st.markdown(f"""
-<div class="hero">
-  <div class="hero-badge">{ICN_BADGE}&nbsp;Supervised ML · Classification</div>
-  <div class="hero-title">Customer Churn<br><span class="hero-accent">Prediction</span></div>
-  <div class="hero-sub">
-    Predicting telecom customer attrition using Logistic Regression and Random Forest
-    on 7,043 customer records with 19 features.
-  </div>
-  <div class="hero-stats">
-    <div class="hero-stat-item">
-      <div class="hero-stat-icon icon-blue">{ICN_USERS}</div>
-      <div><div class="hero-stat-val">7,043</div><div class="hero-stat-lbl">Customers</div></div>
-    </div>
-    <div class="hero-stat-item">
-      <div class="hero-stat-icon icon-green">{ICN_DB}</div>
-      <div><div class="hero-stat-val">19</div><div class="hero-stat-lbl">Features</div></div>
-    </div>
-    <div class="hero-stat-item">
-      <div class="hero-stat-icon icon-purple">{ICN_ACT}</div>
-      <div><div class="hero-stat-val">2</div><div class="hero-stat-lbl">Algorithms</div></div>
-    </div>
-    <div class="hero-stat-item">
-      <div class="hero-stat-icon icon-amber">{ICN_TGT}</div>
-      <div><div class="hero-stat-val">80.55%</div><div class="hero-stat-lbl">Best Accuracy</div></div>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
 # ── Tabs ──────────────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4 = st.tabs(["Overview", "Predict Churn", "Model Analysis", "Visualizations"])
+tab1, tab2 = st.tabs(["Overview", "Predict Churn"])
 
 
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 1 — OVERVIEW
 # ══════════════════════════════════════════════════════════════════════════════
 with tab1:
+    st.markdown(f"""
+    <div class="hero">
+      <div class="hero-badge">{ICN_BADGE}&nbsp;Supervised ML · Classification</div>
+      <div class="hero-title">Customer Churn<br><span class="hero-accent">Prediction</span></div>
+      <div class="hero-sub">
+        Predicting telecom customer attrition using Logistic Regression and Random Forest
+        on 7,043 customer records with 19 features.
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat-item">
+          <div class="hero-stat-icon icon-blue">{ICN_USERS}</div>
+          <div><div class="hero-stat-val">7,043</div><div class="hero-stat-lbl">Customers</div></div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-icon icon-green">{ICN_DB}</div>
+          <div><div class="hero-stat-val">19</div><div class="hero-stat-lbl">Features</div></div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-icon icon-purple">{ICN_ACT}</div>
+          <div><div class="hero-stat-val">2</div><div class="hero-stat-lbl">Algorithms</div></div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-icon icon-amber">{ICN_TGT}</div>
+          <div><div class="hero-stat-val">80.55%</div><div class="hero-stat-lbl">Best Accuracy</div></div>
+        </div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="section section-alt">
@@ -455,87 +580,84 @@ with tab1:
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("""
-    <div class="section">
-      <div class="sec-title">Business Recommendations</div>
-      <div class="sec-sub">Actionable strategies derived from the predictive models</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<div class='inner' style='padding-bottom:60px'>", unsafe_allow_html=True)
-    rc1, rc2, rc3 = st.columns(3)
-    with rc1:
-        st.markdown("""<div class="insight-card insight-blue">
-          <div class="insight-head">Convert Month-to-Month Customers</div>
-          <div class="insight-body">Offer discounts or loyalty rewards to monthly-plan customers to switch to 1- or 2-year contracts, dramatically reducing churn risk across the base.</div>
-        </div>""", unsafe_allow_html=True)
-    with rc2:
-        st.markdown("""<div class="insight-card insight-amber">
-          <div class="insight-head">Strengthen Early Onboarding</div>
-          <div class="insight-body">Implement structured 30/60/90-day journeys. The first year is the highest-risk window — proactive engagement reduces attrition sharply in this period.</div>
-        </div>""", unsafe_allow_html=True)
-    with rc3:
-        st.markdown("""<div class="insight-card insight-red">
-          <div class="insight-head">Audit Fiber Optic Pricing</div>
-          <div class="insight-body">Investigate quality-to-price perception among fiber customers. Address service gaps and introduce loyalty tiers to retain high-value subscribers.</div>
-        </div>""", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # TAB 2 — PREDICT CHURN
 # ══════════════════════════════════════════════════════════════════════════════
 with tab2:
-    st.markdown("""
-    <div class="section section-alt" style="padding-bottom:32px">
-      <div class="sec-title">Predict Customer Churn</div>
-      <div class="sec-sub">Enter customer details — both models return a churn probability in real time</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div class='predict-shell'>", unsafe_allow_html=True)
+    left_col, right_col = st.columns([1.45, 1], gap="large")
 
-    st.markdown("<div class='inner' style='padding-top:8px;padding-bottom:60px'>", unsafe_allow_html=True)
-    with st.form("churn_form"):
-        st.markdown('<div class="form-sep">Demographics</div>', unsafe_allow_html=True)
-        d1, d2, d3, d4 = st.columns(4)
-        gender     = d1.selectbox("Gender", ["Male", "Female"])
-        senior     = d2.selectbox("Senior Citizen", ["No", "Yes"])
-        partner    = d3.selectbox("Partner", ["No", "Yes"])
-        dependents = d4.selectbox("Dependents", ["No", "Yes"])
+    with left_col:
+        st.markdown("""
+        <div class="predict-panel">
+          <div class="predict-panel-head">
+            <div class="predict-panel-title">Predict Customer Churn</div>
+            <div class="predict-panel-sub">Adjust the 19 customer features below. Prediction results stay visible on the right side.</div>
+          </div>
+        """, unsafe_allow_html=True)
 
-        st.markdown('<div class="form-sep">Phone Services</div>', unsafe_allow_html=True)
-        p1, p2 = st.columns(2)
-        phone_service  = p1.selectbox("Phone Service", ["Yes", "No"])
-        multiple_lines = p2.selectbox("Multiple Lines", ["No", "Yes", "No phone service"])
+        with st.form("churn_form"):
+            st.markdown('<div class="form-sep">Demographics</div>', unsafe_allow_html=True)
+            d1, d2 = st.columns(2)
+            gender     = d1.selectbox("Gender", ["Male", "Female"])
+            senior     = d2.selectbox("Senior Citizen", ["No", "Yes"])
+            d3, d4 = st.columns(2)
+            partner    = d3.selectbox("Partner", ["No", "Yes"])
+            dependents = d4.selectbox("Dependents", ["No", "Yes"])
 
-        st.markdown('<div class="form-sep">Internet Services</div>', unsafe_allow_html=True)
-        i1, i2, i3, i4 = st.columns(4)
-        internet        = i1.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
-        online_security = i2.selectbox("Online Security", ["No", "Yes", "No internet service"])
-        online_backup   = i3.selectbox("Online Backup", ["No", "Yes", "No internet service"])
-        device_protect  = i4.selectbox("Device Protection", ["No", "Yes", "No internet service"])
-        i5, i6, i7 = st.columns(3)
-        tech_support     = i5.selectbox("Tech Support", ["No", "Yes", "No internet service"])
-        streaming_tv     = i6.selectbox("Streaming TV", ["No", "Yes", "No internet service"])
-        streaming_movies = i7.selectbox("Streaming Movies", ["No", "Yes", "No internet service"])
+            st.markdown('<div class="form-sep">Phone Services</div>', unsafe_allow_html=True)
+            p1, p2 = st.columns(2)
+            phone_service  = p1.selectbox("Phone Service", ["Yes", "No"])
+            multiple_lines = p2.selectbox("Multiple Lines", ["No", "Yes", "No phone service"])
 
-        st.markdown('<div class="form-sep">Account & Billing</div>', unsafe_allow_html=True)
-        a1, a2, a3 = st.columns(3)
-        contract       = a1.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
-        paperless      = a2.selectbox("Paperless Billing", ["Yes", "No"])
-        payment_method = a3.selectbox("Payment Method", [
-            "Electronic check", "Mailed check",
-            "Bank transfer (automatic)", "Credit card (automatic)"
-        ])
-        b1, b2, b3 = st.columns(3)
-        tenure          = b1.slider("Tenure (months)", 0, 72, 12)
-        monthly_charges = b2.number_input("Monthly Charges ($)", 0.0, 200.0, 65.0, step=0.5)
-        total_charges   = b3.number_input("Total Charges ($)", 0.0, 10000.0,
-                                          float(tenure * monthly_charges), step=1.0)
+            st.markdown('<div class="form-sep">Internet Services</div>', unsafe_allow_html=True)
+            i1, i2 = st.columns(2)
+            internet        = i1.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
+            online_security = i2.selectbox("Online Security", ["No", "Yes", "No internet service"])
+            i3, i4 = st.columns(2)
+            online_backup   = i3.selectbox("Online Backup", ["No", "Yes", "No internet service"])
+            device_protect  = i4.selectbox("Device Protection", ["No", "Yes", "No internet service"])
+            i5, i6 = st.columns(2)
+            tech_support     = i5.selectbox("Tech Support", ["No", "Yes", "No internet service"])
+            streaming_tv     = i6.selectbox("Streaming TV", ["No", "Yes", "No internet service"])
+            i7, i8 = st.columns(2)
+            streaming_movies = i7.selectbox("Streaming Movies", ["No", "Yes", "No internet service"])
+            i8.empty()
 
-        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-        submitted = st.form_submit_button("Run Prediction", use_container_width=True)
+            st.markdown('<div class="form-sep">Account & Billing</div>', unsafe_allow_html=True)
+            a1, a2 = st.columns(2)
+            contract       = a1.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
+            paperless      = a2.selectbox("Paperless Billing", ["Yes", "No"])
+            a3 = st.columns(1)[0]
+            payment_method = a3.selectbox("Payment Method", [
+                "Electronic check", "Mailed check",
+                "Bank transfer (automatic)", "Credit card (automatic)"
+            ])
+            b1, b2, b3 = st.columns(3)
+            tenure          = b1.slider("Tenure (months)", 0, 72, 12)
+            monthly_charges = b2.number_input("Monthly Charges ($)", 0.0, 200.0, 65.0, step=0.5)
+            total_charges   = b3.number_input("Total Charges ($)", 0.0, 10000.0,
+                                              float(tenure * monthly_charges), step=1.0)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+            submitted = st.form_submit_button("Run Prediction", use_container_width=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with right_col:
+        results_anchor = st.container()
+        with results_anchor:
+            st.markdown("""
+            <div class="predict-panel">
+              <div class="predict-panel-head">
+                <div class="predict-panel-title">Prediction Results</div>
+                <div class="predict-panel-sub">Run the prediction to see both model outputs and the combined churn risk score here.</div>
+              </div>
+              <div class="result-placeholder">
+                The result cards will appear here after you submit the customer details from the left-side form.
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     if submitted:
         row = {col: 0 for col in FEATURE_COLS}
@@ -580,224 +702,47 @@ with tab2:
         rf_prob = rf_model.predict_proba(X)[0][1]
         avg     = (lr_prob + rf_prob) / 2
 
-        st.markdown("""
-        <div class="section section-alt" style="padding-top:40px">
-          <div class="sec-title">Prediction Results</div>
-          <div class="sec-sub">Both models evaluated on the supplied customer profile</div>
-        </div>
-        """, unsafe_allow_html=True)
+        with results_anchor:
+            st.markdown("""
+            <div class="predict-panel">
+              <div class="predict-panel-head">
+                <div class="predict-panel-title">Prediction Results</div>
+                <div class="predict-panel-sub">Both models were evaluated using the customer profile you entered.</div>
+              </div>
+            """, unsafe_allow_html=True)
 
-        st.markdown("<div class='inner' style='padding-bottom:0'>", unsafe_allow_html=True)
+            def render_result(col, name, pred, prob):
+                cls   = "result-churn" if pred == 1 else "result-stay"
+                lcls  = "churn"        if pred == 1 else "stay"
+                label = "Will Churn"   if pred == 1 else "Likely to Stay"
+                col.markdown(f"""
+                <div class="model-tag">{name}</div>
+                <div class="result-wrap {cls}">
+                  <div class="result-label {lcls}">{label}</div>
+                  <div class="result-prob">Churn probability: <b>{prob*100:.1f}%</b></div>
+                </div>""", unsafe_allow_html=True)
 
-        def render_result(col, name, pred, prob):
-            cls   = "result-churn" if pred == 1 else "result-stay"
-            lcls  = "churn"        if pred == 1 else "stay"
-            label = "Will Churn"   if pred == 1 else "Likely to Stay"
-            col.markdown(f"""
-            <div class="model-tag">{name}</div>
-            <div class="result-wrap {cls}">
-              <div class="result-label {lcls}">{label}</div>
-              <div class="result-prob">Churn probability: <b>{prob*100:.1f}%</b></div>
-            </div>""", unsafe_allow_html=True)
+            rc1, rc2 = st.columns(2)
+            render_result(rc1, "Logistic Regression", lr_pred, lr_prob)
+            render_result(rc2, "Random Forest", rf_pred, rf_prob)
 
-        rc1, rc2 = st.columns(2)
-        render_result(rc1, "Logistic Regression", lr_pred, lr_prob)
-        render_result(rc2, "Random Forest", rf_pred, rf_prob)
-
-        risk_col  = "#22c55e" if avg < 0.3 else ("#f59e0b" if avg < 0.6 else "#ef4444")
-        risk_lbl  = ("Low risk — customer is unlikely to churn." if avg < 0.3 else
-                     "Medium risk — consider proactive retention action." if avg < 0.6 else
-                     "High risk — immediate retention intervention recommended.")
-        st.markdown(f"""
-        <div class="risk-card">
-          <div class="risk-head">
-            <span class="risk-head-title">Combined Risk Score</span>
-            <span class="risk-score" style="color:{risk_col}">{avg*100:.1f}%</span>
-          </div>
-          <div class="risk-track">
-            <div class="risk-fill" style="width:{avg*100:.1f}%;background:{risk_col}"></div>
-          </div>
-          <div class="risk-labels"><span>Low</span><span>Medium</span><span>High</span></div>
-          <div class="risk-verdict" style="color:{risk_col}">{risk_lbl}</div>
-        </div>
-        """, unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("<div class='gap48'></div>", unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 3 — MODEL ANALYSIS
-# ══════════════════════════════════════════════════════════════════════════════
-with tab3:
-    st.markdown("""
-    <div class="section section-alt">
-      <div class="sec-title">Full Performance Metrics</div>
-      <div class="sec-sub">All evaluation metrics on the held-out test set · 1,409 samples</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<div class='inner'>", unsafe_allow_html=True)
-    st.markdown("""
-    <table class="mtable">
-      <thead>
-        <tr><th>Metric</th><th>Logistic Regression</th><th>Random Forest</th><th>Winner</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Accuracy</td>  <td class="best">80.55%</td><td>78.28%</td><td class="dim">LR</td></tr>
-        <tr><td>Precision</td> <td class="best">65.72%</td><td>61.33%</td><td class="dim">LR</td></tr>
-        <tr><td>Recall</td>    <td class="best">55.88%</td><td>49.20%</td><td class="dim">LR</td></tr>
-        <tr><td>F1 Score</td>  <td class="best">60.40%</td><td>54.60%</td><td class="dim">LR</td></tr>
-        <tr><td>ROC-AUC</td>   <td class="best">0.842</td> <td>0.826</td> <td class="dim">LR</td></tr>
-      </tbody>
-    </table>
-    <div class="gap24"></div>
-    """, unsafe_allow_html=True)
-
-    ca, cb = st.columns(2)
-    with ca:
-        st.markdown('<div class="img-card"><div class="img-title">Confusion Matrices</div>', unsafe_allow_html=True)
-        if (RESULTS / "confusion_matrices.png").exists():
-            st.image(str(RESULTS / "confusion_matrices.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    with cb:
-        st.markdown('<div class="img-card"><div class="img-title">ROC Curves</div>', unsafe_allow_html=True)
-        if (RESULTS / "roc_curves.png").exists():
-            st.image(str(RESULTS / "roc_curves.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("<div class='gap16'></div>", unsafe_allow_html=True)
-
-    cc, cd = st.columns(2)
-    with cc:
-        st.markdown('<div class="img-card"><div class="img-title">Feature Importance — Random Forest</div>', unsafe_allow_html=True)
-        if (RESULTS / "feature_importance.png").exists():
-            st.image(str(RESULTS / "feature_importance.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    with cd:
-        st.markdown('<div class="img-card"><div class="img-title">Cross-Validation Scores (k = 5)</div>', unsafe_allow_html=True)
-        if (RESULTS / "cross_validation.png").exists():
-            st.image(str(RESULTS / "cross_validation.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("<div class='gap16'></div>", unsafe_allow_html=True)
-
-    ce, cf = st.columns(2)
-    with ce:
-        st.markdown('<div class="img-card"><div class="img-title">Overall Model Comparison</div>', unsafe_allow_html=True)
-        if (RESULTS / "model_comparison.png").exists():
-            st.image(str(RESULTS / "model_comparison.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    with cf:
-        st.markdown('<div class="img-card"><div class="img-title">Error Analysis — Misclassified Samples</div>', unsafe_allow_html=True)
-        if (RESULTS / "error_analysis.png").exists():
-            st.image(str(RESULTS / "error_analysis.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="section">
-      <div class="sec-title">Why Logistic Regression Won</div>
-      <div class="sec-sub">Despite being the simpler model, LR outperformed the ensemble on every metric</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    WHY = [
-        ("Approximately Linear Decision Boundary",
-         "The churn/stay boundary in this feature space is close to linear. LR captures this directly, while Random Forest wastes capacity modelling non-linearities that do not exist in the data."),
-        ("Dataset Size vs. Model Complexity",
-         "Random Forest's 100 trees introduce high variance on ~5,600 training samples. LR's lower variance leads to better generalisation on the held-out test set."),
-        ("Class Imbalance Handling",
-         "With only 26.5% positive class, LR's probabilistic framework generalises more robustly, while RF tends to bias toward the majority class under moderate imbalance."),
-        ("Feature Scaling Benefit",
-         "StandardScaler normalises tenure, MonthlyCharges, and TotalCharges — directly benefiting LR's gradient-based optimisation. RF is scale-invariant so gains nothing from this step."),
-    ]
-
-    st.markdown("<div class='inner' style='padding-bottom:60px'>", unsafe_allow_html=True)
-    wa, wb = st.columns(2)
-    for i, (title, body) in enumerate(WHY):
-        col = wa if i % 2 == 0 else wb
-        col.markdown(f"""<div class="why-card">
-          <div class="why-title">{title}</div>
-          <div class="why-body">{body}</div>
-        </div>""", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# TAB 4 — VISUALIZATIONS
-# ══════════════════════════════════════════════════════════════════════════════
-with tab4:
-    st.markdown("""
-    <div class="section section-alt">
-      <div class="sec-title">Exploratory Data Analysis</div>
-      <div class="sec-sub">Visual insights from the Telco Customer Churn dataset before modelling</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("<div class='inner'>", unsafe_allow_html=True)
-
-    st.markdown('<div class="img-card" style="margin-bottom:16px"><div class="img-title">Churn Distribution — Overall Dataset</div>', unsafe_allow_html=True)
-    if (RESULTS / "churn_distribution.png").exists():
-        st.image(str(RESULTS / "churn_distribution.png"), use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
-
-    v1, v2 = st.columns(2)
-    with v1:
-        st.markdown('<div class="img-card"><div class="img-title">Churn Rate by Contract Type</div>', unsafe_allow_html=True)
-        if (RESULTS / "churn_by_contract.png").exists():
-            st.image(str(RESULTS / "churn_by_contract.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    with v2:
-        st.markdown('<div class="img-card"><div class="img-title">Churn Rate by Internet Service</div>', unsafe_allow_html=True)
-        if (RESULTS / "churn_by_internet.png").exists():
-            st.image(str(RESULTS / "churn_by_internet.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("<div class='gap16'></div>", unsafe_allow_html=True)
-
-    v3, v4 = st.columns(2)
-    with v3:
-        st.markdown('<div class="img-card"><div class="img-title">Monthly Charges Distribution by Churn</div>', unsafe_allow_html=True)
-        if (RESULTS / "monthly_charges_by_churn.png").exists():
-            st.image(str(RESULTS / "monthly_charges_by_churn.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    with v4:
-        st.markdown('<div class="img-card"><div class="img-title">Tenure Distribution by Churn</div>', unsafe_allow_html=True)
-        if (RESULTS / "tenure_by_churn.png").exists():
-            st.image(str(RESULTS / "tenure_by_churn.png"), use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="section">
-      <div class="sec-title">Key EDA Findings</div>
-      <div class="sec-sub">Statistical takeaways from the exploratory analysis</div>
-      <div class="metric-grid" style="margin-top:32px">
-        <div class="metric-card">
-          <div class="metric-label">Churn Rate</div>
-          <div class="metric-value">26.54%</div>
-          <div class="metric-note">moderately imbalanced</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Avg Monthly Charge</div>
-          <div class="metric-value">$64.76</div>
-          <div class="metric-note">across all customers</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Avg Tenure — Stay</div>
-          <div class="metric-value">37.6 mo</div>
-          <div class="metric-note">loyal customers</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Avg Tenure — Churn</div>
-          <div class="metric-value">18.0 mo</div>
-          <div class="metric-note">2x lower than stayers</div>
-        </div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+            risk_col  = "#22c55e" if avg < 0.3 else ("#f59e0b" if avg < 0.6 else "#ef4444")
+            risk_lbl  = ("Low risk — customer is unlikely to churn." if avg < 0.3 else
+                         "Medium risk — consider proactive retention action." if avg < 0.6 else
+                         "High risk — immediate retention intervention recommended.")
+            st.markdown(f"""
+            <div class="risk-card">
+              <div class="risk-head">
+                <span class="risk-head-title">Combined Risk Score</span>
+                <span class="risk-score" style="color:{risk_col}">{avg*100:.1f}%</span>
+              </div>
+              <div class="risk-track">
+                <div class="risk-fill" style="width:{avg*100:.1f}%;background:{risk_col}"></div>
+              </div>
+              <div class="risk-labels"><span>Low</span><span>Medium</span><span>High</span></div>
+              <div class="risk-verdict" style="color:{risk_col}">{risk_lbl}</div>
+            </div>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("<div class='gap48'></div>", unsafe_allow_html=True)
