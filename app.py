@@ -585,79 +585,62 @@ with tab1:
 # ══════════════════════════════════════════════════════════════════════════════
 with tab2:
     st.markdown("<div class='predict-shell'>", unsafe_allow_html=True)
-    left_col, right_col = st.columns([1.45, 1], gap="large")
 
-    with left_col:
-        st.markdown("""
-        <div class="predict-panel">
-          <div class="predict-panel-head">
-            <div class="predict-panel-title">Predict Customer Churn</div>
-            <div class="predict-panel-sub">Adjust the 19 customer features below. Prediction results stay visible on the right side.</div>
-          </div>
-        """, unsafe_allow_html=True)
+    st.markdown("""
+    <div class="predict-panel">
+      <div class="predict-panel-head">
+        <div class="predict-panel-title">Predict Customer Churn</div>
+        <div class="predict-panel-sub">Adjust the 19 customer features below and run the prediction to see results.</div>
+      </div>
+    """, unsafe_allow_html=True)
 
-        with st.form("churn_form"):
-            st.markdown('<div class="form-sep">Demographics</div>', unsafe_allow_html=True)
-            d1, d2 = st.columns(2)
-            gender     = d1.selectbox("Gender", ["Male", "Female"])
-            senior     = d2.selectbox("Senior Citizen", ["No", "Yes"])
-            d3, d4 = st.columns(2)
-            partner    = d3.selectbox("Partner", ["No", "Yes"])
-            dependents = d4.selectbox("Dependents", ["No", "Yes"])
+    with st.form("churn_form"):
+        st.markdown('<div class="form-sep">Demographics</div>', unsafe_allow_html=True)
+        d1, d2 = st.columns(2)
+        gender     = d1.selectbox("Gender", ["Male", "Female"])
+        senior     = d2.selectbox("Senior Citizen", ["No", "Yes"])
+        d3, d4 = st.columns(2)
+        partner    = d3.selectbox("Partner", ["No", "Yes"])
+        dependents = d4.selectbox("Dependents", ["No", "Yes"])
 
-            st.markdown('<div class="form-sep">Phone Services</div>', unsafe_allow_html=True)
-            p1, p2 = st.columns(2)
-            phone_service  = p1.selectbox("Phone Service", ["Yes", "No"])
-            multiple_lines = p2.selectbox("Multiple Lines", ["No", "Yes", "No phone service"])
+        st.markdown('<div class="form-sep">Phone Services</div>', unsafe_allow_html=True)
+        p1, p2 = st.columns(2)
+        phone_service  = p1.selectbox("Phone Service", ["Yes", "No"])
+        multiple_lines = p2.selectbox("Multiple Lines", ["No", "Yes", "No phone service"])
 
-            st.markdown('<div class="form-sep">Internet Services</div>', unsafe_allow_html=True)
-            i1, i2 = st.columns(2)
-            internet        = i1.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
-            online_security = i2.selectbox("Online Security", ["No", "Yes", "No internet service"])
-            i3, i4 = st.columns(2)
-            online_backup   = i3.selectbox("Online Backup", ["No", "Yes", "No internet service"])
-            device_protect  = i4.selectbox("Device Protection", ["No", "Yes", "No internet service"])
-            i5, i6 = st.columns(2)
-            tech_support     = i5.selectbox("Tech Support", ["No", "Yes", "No internet service"])
-            streaming_tv     = i6.selectbox("Streaming TV", ["No", "Yes", "No internet service"])
-            i7, i8 = st.columns(2)
-            streaming_movies = i7.selectbox("Streaming Movies", ["No", "Yes", "No internet service"])
-            i8.empty()
+        st.markdown('<div class="form-sep">Internet Services</div>', unsafe_allow_html=True)
+        i1, i2 = st.columns(2)
+        internet        = i1.selectbox("Internet Service", ["DSL", "Fiber optic", "No"])
+        online_security = i2.selectbox("Online Security", ["No", "Yes", "No internet service"])
+        i3, i4 = st.columns(2)
+        online_backup   = i3.selectbox("Online Backup", ["No", "Yes", "No internet service"])
+        device_protect  = i4.selectbox("Device Protection", ["No", "Yes", "No internet service"])
+        i5, i6 = st.columns(2)
+        tech_support     = i5.selectbox("Tech Support", ["No", "Yes", "No internet service"])
+        streaming_tv     = i6.selectbox("Streaming TV", ["No", "Yes", "No internet service"])
+        i7, i8 = st.columns(2)
+        streaming_movies = i7.selectbox("Streaming Movies", ["No", "Yes", "No internet service"])
+        i8.empty()
 
-            st.markdown('<div class="form-sep">Account & Billing</div>', unsafe_allow_html=True)
-            a1, a2 = st.columns(2)
-            contract       = a1.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
-            paperless      = a2.selectbox("Paperless Billing", ["Yes", "No"])
-            a3 = st.columns(1)[0]
-            payment_method = a3.selectbox("Payment Method", [
-                "Electronic check", "Mailed check",
-                "Bank transfer (automatic)", "Credit card (automatic)"
-            ])
-            b1, b2, b3 = st.columns(3)
-            tenure          = b1.slider("Tenure (months)", 0, 72, 12)
-            monthly_charges = b2.number_input("Monthly Charges ($)", 0.0, 200.0, 65.0, step=0.5)
-            total_charges   = b3.number_input("Total Charges ($)", 0.0, 10000.0,
-                                              float(tenure * monthly_charges), step=1.0)
+        st.markdown('<div class="form-sep">Account & Billing</div>', unsafe_allow_html=True)
+        a1, a2 = st.columns(2)
+        contract       = a1.selectbox("Contract Type", ["Month-to-month", "One year", "Two year"])
+        paperless      = a2.selectbox("Paperless Billing", ["Yes", "No"])
+        a3 = st.columns(1)[0]
+        payment_method = a3.selectbox("Payment Method", [
+            "Electronic check", "Mailed check",
+            "Bank transfer (automatic)", "Credit card (automatic)"
+        ])
+        b1, b2, b3 = st.columns(3)
+        tenure          = b1.slider("Tenure (months)", 0, 72, 12)
+        monthly_charges = b2.number_input("Monthly Charges ($)", 0.0, 200.0, 65.0, step=0.5)
+        total_charges   = b3.number_input("Total Charges ($)", 0.0, 10000.0,
+                                          float(tenure * monthly_charges), step=1.0)
 
-            st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-            submitted = st.form_submit_button("Run Prediction", use_container_width=True)
+        st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+        submitted = st.form_submit_button("Run Prediction", use_container_width=True)
 
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with right_col:
-        results_anchor = st.container()
-        with results_anchor:
-            st.markdown("""
-            <div class="predict-panel">
-              <div class="predict-panel-head">
-                <div class="predict-panel-title">Prediction Results</div>
-                <div class="predict-panel-sub">Run the prediction to see both model outputs and the combined churn risk score here.</div>
-              </div>
-              <div class="result-placeholder">
-                The result cards will appear here after you submit the customer details from the left-side form.
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if submitted:
         row = {col: 0 for col in FEATURE_COLS}
@@ -702,47 +685,46 @@ with tab2:
         rf_prob = rf_model.predict_proba(X)[0][1]
         avg     = (lr_prob + rf_prob) / 2
 
-        with results_anchor:
-            st.markdown("""
-            <div class="predict-panel">
-              <div class="predict-panel-head">
-                <div class="predict-panel-title">Prediction Results</div>
-                <div class="predict-panel-sub">Both models were evaluated using the customer profile you entered.</div>
-              </div>
-            """, unsafe_allow_html=True)
+        st.markdown("""
+        <div class="predict-panel">
+          <div class="predict-panel-head">
+            <div class="predict-panel-title">Prediction Results</div>
+            <div class="predict-panel-sub">Both models were evaluated using the customer profile you entered.</div>
+          </div>
+        """, unsafe_allow_html=True)
 
-            def render_result(col, name, pred, prob):
-                cls   = "result-churn" if pred == 1 else "result-stay"
-                lcls  = "churn"        if pred == 1 else "stay"
-                label = "Will Churn"   if pred == 1 else "Likely to Stay"
-                col.markdown(f"""
-                <div class="model-tag">{name}</div>
-                <div class="result-wrap {cls}">
-                  <div class="result-label {lcls}">{label}</div>
-                  <div class="result-prob">Churn probability: <b>{prob*100:.1f}%</b></div>
-                </div>""", unsafe_allow_html=True)
+        def render_result(col, name, pred, prob):
+            cls   = "result-churn" if pred == 1 else "result-stay"
+            lcls  = "churn"        if pred == 1 else "stay"
+            label = "Will Churn"   if pred == 1 else "Likely to Stay"
+            col.markdown(f"""
+            <div class="model-tag">{name}</div>
+            <div class="result-wrap {cls}">
+              <div class="result-label {lcls}">{label}</div>
+              <div class="result-prob">Churn probability: <b>{prob*100:.1f}%</b></div>
+            </div>""", unsafe_allow_html=True)
 
-            rc1, rc2 = st.columns(2)
-            render_result(rc1, "Logistic Regression", lr_pred, lr_prob)
-            render_result(rc2, "Random Forest", rf_pred, rf_prob)
+        rc1, rc2 = st.columns(2)
+        render_result(rc1, "Logistic Regression", lr_pred, lr_prob)
+        render_result(rc2, "Random Forest", rf_pred, rf_prob)
 
-            risk_col  = "#22c55e" if avg < 0.3 else ("#f59e0b" if avg < 0.6 else "#ef4444")
-            risk_lbl  = ("Low risk — customer is unlikely to churn." if avg < 0.3 else
-                         "Medium risk — consider proactive retention action." if avg < 0.6 else
-                         "High risk — immediate retention intervention recommended.")
-            st.markdown(f"""
-            <div class="risk-card">
-              <div class="risk-head">
-                <span class="risk-head-title">Combined Risk Score</span>
-                <span class="risk-score" style="color:{risk_col}">{avg*100:.1f}%</span>
-              </div>
-              <div class="risk-track">
-                <div class="risk-fill" style="width:{avg*100:.1f}%;background:{risk_col}"></div>
-              </div>
-              <div class="risk-labels"><span>Low</span><span>Medium</span><span>High</span></div>
-              <div class="risk-verdict" style="color:{risk_col}">{risk_lbl}</div>
-            </div>
-            </div>
-            """, unsafe_allow_html=True)
+        risk_col  = "#22c55e" if avg < 0.3 else ("#f59e0b" if avg < 0.6 else "#ef4444")
+        risk_lbl  = ("Low risk — customer is unlikely to churn." if avg < 0.3 else
+                     "Medium risk — consider proactive retention action." if avg < 0.6 else
+                     "High risk — immediate retention intervention recommended.")
+        st.markdown(f"""
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="risk-head-title">Combined Risk Score</span>
+            <span class="risk-score" style="color:{risk_col}">{avg*100:.1f}%</span>
+          </div>
+          <div class="risk-track">
+            <div class="risk-fill" style="width:{avg*100:.1f}%;background:{risk_col}"></div>
+          </div>
+          <div class="risk-labels"><span>Low</span><span>Medium</span><span>High</span></div>
+          <div class="risk-verdict" style="color:{risk_col}">{risk_lbl}</div>
+        </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("<div class='gap48'></div>", unsafe_allow_html=True)
